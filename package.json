@@ -1,6 +1,6 @@
 {
   "name": "@programmer5000/github-auto-pull",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Automagically pull and restart your program whenever git changes are made.",
   "main": "index.js",
   "scripts": {
@@ -23,5 +23,5 @@
   "bin": {
     "github-auto-pull": "./index.js"
   },
-	"preferGlobal": true
+  "preferGlobal": true
 }
