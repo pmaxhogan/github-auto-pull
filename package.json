@@ -22,5 +22,6 @@
   },
   "bin": {
     "github-auto-pull": "./index.js"
-  }
+  },
+	"preferGlobal": true
 }
