@@ -18,5 +18,8 @@
   "homepage": "https://github.com/programmer5000-com/github-auto-pull#readme",
   "devDependencies": {
     "eslint": "^4.19.1"
+  },
+  "bin": {
+    "github-auto-pull": "./index.js"
   }
 }
