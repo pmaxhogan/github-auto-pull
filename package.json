@@ -21,5 +21,9 @@
   },
   "bin": {
     "github-auto-pull": "./index.js"
-  }
+  },
+	"scripts": {
+		"start": "node index.js",
+		"build": "sh build.sh"
+	}
 }
