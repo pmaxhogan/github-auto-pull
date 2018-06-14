@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 const http = require("http");
-const port = 8080;
+const port = 80;
 
 const requestHandler = (request, response) => {
 	console.log(request.url);
@@ -13,7 +13,7 @@ const requestHandler = (request, response) => {
 	}).on("end", () => {
 		body = Buffer.concat(body).toString();
 
-		if(!body || !body.toString()) return;
+		if(!body || !body.toString()) response.end("hi");
 
 		hmac.on("readable", () => {
 			const data = hmac.read();
@@ -23,8 +23,14 @@ const requestHandler = (request, response) => {
 				if(matches){
 					const json = JSON.parse(body);
 					console.log(json);
+					if(json.zen){
+						console.log(`Got ping from ${json.repository.html_url} (sender: ${json.sender.login})`);
+					}else if(json.pusher){
+						console.log(`Got commits from ${json.pusher.name}! ${json.commits.reduce((str, commit) => str + `
+${commit.id} ${commit.author.name}: ${commit.message}`)}`);
+					}
 				}else{
-					console.error(`"HMAC didn't match! Calculated sha1=${hash}, was sent ${request.headers["x-hub-signature"]}`);
+					console.error(`HMAC didn't match! Calculated sha1=${hash}, was sent ${request.headers["x-hub-signature"]}`);
 				}
 			}
 		});
@@ -32,13 +38,13 @@ const requestHandler = (request, response) => {
 
 		hmac.write(body);
 		hmac.end();
-		response.end("");
+		response.end("hi");
 	});
 };
 
 const server = http.createServer(requestHandler);
 
-server.listen(port, (err) => {
+server.listen(port, "0.0.0.0", (err) => {
 	if (err) {
 		return console.log("something bad happened", err);
 	}
