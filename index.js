@@ -5,6 +5,8 @@ const http = require("http");
 const { spawn } = require("child_process");
 const port = 80;
 
+const seen = [];
+
 if(process.argv.length !== 3 && process.argv.length !== 4){
 	console.log(`
 github-auto-pull [fileToRun] <secret>
@@ -28,7 +30,11 @@ console.log("Program output will be logged to " + logfile);
 const out = fs.openSync(logfile, "a");
 const err = fs.openSync(logfile, "a");
 
-const procBody = (body) => {
+const procBody = (body, request) => {
+	const guid = request.headers["x-github-delivery"];
+	if(seen.includes(guid)) return console.error("Ignored duplicate GUID", guid);
+	seen.push(guid);
+
 	const json = JSON.parse(body);
 	if(json.zen){
 		console.log(`Got ping from ${json.repository.html_url} (sender: ${json.sender.login})`);
@@ -86,16 +92,16 @@ const requestHandler = (request, response) => {
 					const hash = data.toString("hex");
 					const matches = "sha1=" + hash === request.headers["x-hub-signature"];
 					if(matches){
-						procBody(body);
+						procBody(body, request);
 					}else{
 						console.error(`HMAC didn't match! Calculated sha1=${hash}, was sent ${request.headers["x-hub-signature"]}`);
 					}
 				}
 			});
-		}
-		if(secret){
 			hmac.write(body);
 			hmac.end();
+		}else{
+			procBody(body, request);
 		}
 		response.end("hi");
 	});
