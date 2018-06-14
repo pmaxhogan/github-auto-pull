@@ -9,9 +9,15 @@ const port = 80;
 
 const seen = [];
 
-if(process.argv.length !== 3 && process.argv.length !== 4){
+if(
+	(process.argv.length !== 3 && process.argv.length !== 4) ||
+	process.argv[2] === "-h" || process.argv[2] === "--help"
+){
 	console.log(`
+Usage:
+
 github-auto-pull [fileToRun] <secret>
+github-auto-pull [-h|--help]
 
 Creates a github webhook server running on port 80.
 `);
