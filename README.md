@@ -2,7 +2,7 @@
 Automagically pull and restart your program whenever git changes are made.
 
 ## Usage
-Download an executable for your platform from [the releases page](https://github.com/programmer5000-com/github-auto-pull/releases).
+Download an executable for your platform from [the releases page](https://github.com/programmer5000-com/github-auto-pull/releases) or run `npm i @programmer5000/github-auto-pull`.
 Then create the script you want to run:
 
 ```bash
