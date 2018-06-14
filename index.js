@@ -21,10 +21,16 @@ github-auto-pull [-h|--help]
 
 Creates a github webhook server running on port 80.
 `);
-	process.exit();
+	process.exit(0);
 }
 
-const fileToRun = process.argv[2];
+const fileToRun = path.resolve(process.argv[2]);
+try {
+	fs.accessSync(fileToRun);
+}catch(e){
+	console.error("Could not find file", process.argv[2]);
+	process.exit(1);
+}
 const secret = process.argv[3];
 if(secret){
 	console.log("running", fileToRun, "when a correct push with the secret", secret);
