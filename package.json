@@ -1,0 +1,22 @@
+{
+  "name": "github-auto-pull",
+  "version": "1.0.0",
+  "description": "Automagically pull and restart your program whenever git changes are made.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/programmer5000-com/github-auto-pull.git"
+  },
+  "author": "programmer5000",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/programmer5000-com/github-auto-pull/issues"
+  },
+  "homepage": "https://github.com/programmer5000-com/github-auto-pull#readme",
+  "devDependencies": {
+    "eslint": "^4.19.1"
+  }
+}
