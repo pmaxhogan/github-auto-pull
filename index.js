@@ -3,7 +3,6 @@ const http = require("http");
 const port = 80;
 
 const requestHandler = (request, response) => {
-	console.log(request.url);
 	let body = [];
 
 	const hmac = crypto.createHmac("sha1", "OHHAI");
@@ -22,7 +21,6 @@ const requestHandler = (request, response) => {
 				const matches = "sha1=" + hash === request.headers["x-hub-signature"];
 				if(matches){
 					const json = JSON.parse(body);
-					console.log(json);
 					if(json.zen){
 						console.log(`Got ping from ${json.repository.html_url} (sender: ${json.sender.login})`);
 					}else if(json.pusher){
