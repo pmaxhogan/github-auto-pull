@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const http = require("http");
 const { spawn } = require("child_process");
 
-const port = 81;
+const port = parseInt(process.env.PORT) || 80;
 const maxBytes = 5000;
 
 const seen = [];
