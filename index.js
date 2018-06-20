@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const http = require("http");
 const { spawn } = require("child_process");
-const port = 80;
+
+const port = 81;
+const maxBytes = 5000;
 
 const seen = [];
 
@@ -99,15 +100,27 @@ chmod +x ${fileToRun}`);
 };
 
 const requestHandler = (request, response) => {
+	let usedBytes = 0;
 	let body = [];
 	let hmac;
 
 	if(secret) hmac = crypto.createHmac("sha1", secret);
 
 	request.on("data", (chunk) => {
+		usedBytes += chunk.length;
+		if(usedBytes > maxBytes) return response.end();
 		body.push(chunk);
 	}).on("end", () => {
+		if(usedBytes > maxBytes) console.log("response");
 		body = Buffer.concat(body).toString();
+
+		let safeBody;
+		try {
+			safeBody = new Buffer(body.slice(0, 500)).toString("base64");
+		} catch (e) {
+			safeBody = "could not get body, got error " + (e && e.code);
+		}
+		const logInfo = `from IP ${request.connection.remoteAddress} with method ${request.method} and body ${JSON.stringify(safeBody)}`;
 
 		if(!body || !body.toString()) response.end("No message was sent.");
 
@@ -116,11 +129,11 @@ const requestHandler = (request, response) => {
 				const data = hmac.read();
 				if (data) {
 					const hash = data.toString("hex");
-					const matches = "sha1=" + hash === request.headers["x-hub-signature"];
+					const matches = crypto.timingSafeEqual(data, new Buffer(request.headers["x-hub-signature"].slice("sha1=".length), "ascii"));
 					if(matches){
 						procBody(body, request);
 					}else{
-						console.error(`HMAC didn't match! Calculated sha1=${hash}, was sent ${request.headers["x-hub-signature"]} from IP ${request.connection.remoteAddress}`);
+						console.error(`HMAC didn't match! Calculated sha1=${hash}, was sent HMAC ${request.headers["x-hub-signature"]} ${logInfo}`);
 					}
 				}
 			});
