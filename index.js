@@ -24,6 +24,18 @@ Creates a github webhook server running on port 80.
 	process.exit(0);
 }
 
+(() => {
+	const oldLog = console.log;
+	console.log = (...args) => {
+		oldLog((new Date).toISOString(), ...args);
+	};
+
+	const oldErr = console.log;
+	console.log = (...args) => {
+		oldErr((new Date).toISOString(), ...args);
+	};
+})();
+
 const fileToRun = path.resolve(process.argv[2]);
 try {
 	fs.accessSync(fileToRun);
