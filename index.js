@@ -108,7 +108,7 @@ const requestHandler = (request, response) => {
 					if(matches){
 						procBody(body, request);
 					}else{
-						console.error(`HMAC didn't match! Calculated sha1=${hash}, was sent ${request.headers["x-hub-signature"]}`);
+						console.error(`HMAC didn't match! Calculated sha1=${hash}, was sent ${request.headers["x-hub-signature"]} from IP ${request.connection.remoteAddress}`);
 					}
 				}
 			});
