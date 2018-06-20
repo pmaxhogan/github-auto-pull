@@ -31,7 +31,7 @@ Creates a github webhook server running on port 80.
 	};
 
 	const oldErr = console.log;
-	console.log = (...args) => {
+	console.error = (...args) => {
 		oldErr((new Date).toISOString(), ...args);
 	};
 })();
