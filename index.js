@@ -31,7 +31,7 @@ Creates a github webhook server running on port 80.
 		oldLog((new Date).toISOString(), ...args);
 	};
 
-	const oldErr = console.log;
+	const oldErr = console.error;
 	console.error = (...args) => {
 		oldErr((new Date).toISOString(), ...args);
 	};
@@ -111,7 +111,11 @@ const requestHandler = (request, response) => {
 		if(usedBytes > maxBytes) return response.end();
 		body.push(chunk);
 	}).on("end", () => {
-		if(usedBytes > maxBytes) console.log("response");
+		const simpleLogInfo = `from IP ${request.connection.remoteAddress} with method ${request.method}`;
+		if(usedBytes > maxBytes){
+			console.log("response used", usedBytes, "out of", maxBytes, simpleLogInfo);
+			return response.end;
+		}
 		body = Buffer.concat(body).toString();
 
 		let safeBody;
@@ -120,11 +124,20 @@ const requestHandler = (request, response) => {
 		} catch (e) {
 			safeBody = "could not get body, got error " + (e && e.code);
 		}
-		const logInfo = `from IP ${request.connection.remoteAddress} with method ${request.method} and body ${JSON.stringify(safeBody)}`;
 
-		if(!body || !body.toString()) response.end("No message was sent.");
+		if(!body || !body.toString()){
+			console.error("no body sent", simpleLogInfo);
+			return response.end();
+		}
+
+		const logInfo = `${simpleLogInfo} and body ${JSON.stringify(safeBody)}`;
 
 		if(secret){
+			if(!request.headers["x-hub-signature"] || request.headers["x-hub-signature"].length !== 45){
+				console.error("invalid HMAC", request.headers["x-hub-signature"], logInfo);
+				return response.end();
+			}
+
 			hmac.on("readable", () => {
 				const data = hmac.read();
 				if (data) {
@@ -132,8 +145,10 @@ const requestHandler = (request, response) => {
 					const matches = crypto.timingSafeEqual(data, new Buffer(request.headers["x-hub-signature"].slice("sha1=".length), "ascii"));
 					if(matches){
 						procBody(body, request);
+						response.end();
 					}else{
 						console.error(`HMAC didn't match! Calculated sha1=${hash}, was sent HMAC ${request.headers["x-hub-signature"]} ${logInfo}`);
+						response.end();
 					}
 				}
 			});
@@ -141,8 +156,8 @@ const requestHandler = (request, response) => {
 			hmac.end();
 		}else{
 			procBody(body, request);
+			response.end();
 		}
-		response.end("hi");
 	});
 };
 
